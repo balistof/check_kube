@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/codegangsta/cli"
 	"k8s.io/kubernetes/pkg/api"
@@ -15,13 +16,16 @@ import (
 )
 
 const (
-	appVersion = "0.1.2"
+	appVersion = "0.2.0"
 
 	// Nagios status codes
 	nagiosStatusOK       = 0
 	nagiosStatusWarning  = 1
 	nagiosStatusCritical = 2
 	nagiosStatusUnknown  = 3
+
+	// TODO make this constant a plugin parameter (user can change it)
+	minRunningDuration = time.Minute*5
 )
 
 var (
@@ -78,6 +82,7 @@ func checkKubePods(c *cli.Context) {
 	var statusCode = nagiosStatusOK
 	var statusLine []string
 	var notReadyCount int
+	var justStartedCount int
 
 	kubeClient, err := client.New(kubeConfig)
 	if err != nil {
@@ -100,6 +105,15 @@ func checkKubePods(c *cli.Context) {
 				notReadyCount++
 			}
 		}
+		if time.Since(pod.Status.StartTime.Time) < minRunningDuration {
+			justStartedCount++
+		}
+	}
+
+	if justStartedCount != 0 {
+		msg := fmt.Sprintf("%d pods recently started.", justStartedCount)
+		statusLine = append(statusLine, msg)
+		statusCode = nagiosStatusWarning
 	}
 
 	if notReadyCount != 0 {
