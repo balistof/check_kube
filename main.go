@@ -9,12 +9,13 @@ import (
 	"k8s.io/kubernetes/pkg/api"
 	"k8s.io/kubernetes/pkg/fields"
 	"k8s.io/kubernetes/pkg/labels"
+	"k8s.io/kubernetes/pkg/client/restclient"
 
 	client "k8s.io/kubernetes/pkg/client/unversioned"
 )
 
 const (
-	appVersion = "0.1.1"
+	appVersion = "0.1.2"
 
 	// Nagios status codes
 	nagiosStatusOK       = 0
@@ -24,7 +25,7 @@ const (
 )
 
 var (
-	kubeConfig = &client.Config{}
+	kubeConfig = &restclient.Config{}
 )
 
 func checkKubeNodes(c *cli.Context) {
@@ -39,7 +40,8 @@ func checkKubeNodes(c *cli.Context) {
 	}
 
 	// TODO: Allow for selecting nodes based on labels or fields
-	nodes, err := kubeClient.Nodes().List(labels.Everything(), fields.Everything())
+	options := api.ListOptions{LabelSelector: labels.Everything(), FieldSelector: fields.Everything()}
+	nodes, err := kubeClient.Nodes().List(options)
 	if err != nil {
 		fmt.Printf("CRITICAL: %s\n", err)
 		os.Exit(nagiosStatusUnknown)
@@ -84,7 +86,8 @@ func checkKubePods(c *cli.Context) {
 	}
 
 	// TODO: Allow for selecting pods based on labels or fields
-	pods, err := kubeClient.Pods("").List(labels.Everything(), fields.Everything())
+	options := api.ListOptions{LabelSelector: labels.Everything(), FieldSelector: fields.Everything()}
+	pods, err := kubeClient.Pods("").List(options)
 	if err != nil {
 		fmt.Printf("CRITICAL: %s\n", err)
 		os.Exit(nagiosStatusUnknown)
