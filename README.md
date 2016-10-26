@@ -6,14 +6,14 @@ A Nagios check to verify the status of a Kubernetes cluster resources
 Installing
 ----------
 If you would rather not build the binaries yourself, you can install compiled,
-statically-linked [binaries](https://github.com/jfchevrette/check_kube/releases)
+statically-linked [binaries](check_kube/releases)
 
 Building
 --------
 ```
-go get github.com/jfchevrette/check_kube
+./build.sh
 
-# Binary will be at $GOPATH/bin/check_kube
+# Binary will be in the build folder
 ```
 
 Usage
@@ -26,7 +26,7 @@ USAGE:
    check_kube [global options] command [command options] [arguments...]
 
 VERSION:
-   0.0.1
+   0.3.0
 
 COMMANDS:
    node, n	check node status
@@ -54,7 +54,6 @@ TODOs & Ideas for improvements
 ----
 - [ ] Token-based authentication
 - [ ] TLS certificate authentication
-- [ ] Implement pod status checking
 - [ ] Implement replicationController status checking
 - [ ] Implement service status checking
 
